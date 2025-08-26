@@ -7,62 +7,61 @@ import static br.com.doug.model.GameStatusEnum.*;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
-
 public class Board {
 
-    private final List<List<Space>> space;
+    private final List<List<Space>> spaces;
 
-    public Board(List<List<Space>> space) {
-        this.space = space;
+    public Board(final List<List<Space>> spaces) {
+        this.spaces = spaces;
     }
 
-    public List<List<Space>> getSpace() {
-        return space;
+    public List<List<Space>> getSpaces() {
+        return spaces;
     }
 
     public GameStatusEnum getStatus(){
-        if(space.stream().flatMap(Collection::stream).noneMatch(s -> !s.isFixed() && nonNull(s.getActual()))){
+        if (spaces.stream().flatMap(Collection::stream).noneMatch(s -> !s.isFixed() && nonNull(s.getActual()))){
             return NON_STARTED;
         }
 
-        return space.stream().flatMap(Collection::stream)
-                .anyMatch(s -> isNull(s.getActual())) ?
-                INCOMPLETE : COMPLETE;
+        return spaces.stream().flatMap(Collection::stream).anyMatch(s -> isNull(s.getActual())) ? INCOMPLETE : COMPLETE;
     }
 
-    public boolean hasError(){
-        if(getStatus() == NON_STARTED) {
+    public boolean hasErrors(){
+        if(getStatus() == NON_STARTED){
             return false;
         }
 
-        return space.stream().flatMap(Collection::stream)
+        return spaces.stream().flatMap(Collection::stream)
                 .anyMatch(s -> nonNull(s.getActual()) && !s.getActual().equals(s.getExpected()));
     }
 
     public boolean changeValue(final int col, final int row, final int value){
-        var spaces = space.get(col).get(row);
-        if (spaces.isFixed()){
+        var space = spaces.get(col).get(row);
+        if (space.isFixed()){
             return false;
         }
-        spaces.setActual(value);
+
+        space.setActual(value);
         return true;
     }
 
     public boolean clearValue(final int col, final int row){
-        var spaces = space.get(col).get(row);
-        if (spaces.isFixed()){
+        var space = spaces.get(col).get(row);
+        if (space.isFixed()){
             return false;
         }
-        spaces.clearSpace();
+
+        space.clearSpace();
         return true;
     }
 
     public void reset(){
-        space.forEach(c -> c.forEach(Space::clearSpace));
+        spaces.forEach(c -> c.forEach(Space::clearSpace));
     }
 
     public boolean gameIsFinished(){
-        return !hasError() && getStatus().equals(COMPLETE);
+        return !hasErrors() && getStatus().equals(COMPLETE);
     }
 
 }
